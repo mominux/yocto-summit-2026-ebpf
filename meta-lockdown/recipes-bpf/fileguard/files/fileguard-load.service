@@ -1,0 +1,13 @@
+[Unit]
+Description=Demo: protect device configuration with a custom BPF-LSM hook
+# systemd mounts bpffs as an API filesystem; it may not expose a mount unit.
+AssertPathIsMountPoint=/sys/fs/bpf
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=@BINDIR@/fileguard-load @LIBDIR@/bpf/fileguard.bpf.o /etc/lockdown-demo/device.conf
+ExecStop=/bin/rm -f /sys/fs/bpf/fileguard_link
+
+[Install]
+WantedBy=multi-user.target

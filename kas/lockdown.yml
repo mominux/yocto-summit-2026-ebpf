@@ -1,0 +1,45 @@
+header:
+  version: 14
+distro: poky
+machine: qemuarm64
+target: lockdown-image
+
+repos:
+  meta-lockdown:
+    path: meta-lockdown
+  poky:
+    url: https://git.yoctoproject.org/poky
+    branch: scarthgap
+    commit: 9517df0a9af21f1e0f9d6ba5a78c5ae1d7c83184
+    layers:
+      meta:
+      meta-poky:
+  meta-openembedded:
+    url: https://git.openembedded.org/meta-openembedded
+    branch: scarthgap
+    commit: 2db6aece32c7f8ebf6015b468e1b4e21de072e3b
+    layers:
+      meta-oe:
+  meta-clang:
+    url: https://github.com/kraj/meta-clang
+    branch: scarthgap
+    commit: cc29beb210ab94eacc53bbd67e287e4e33ede342
+
+local_conf_header:
+  build-resources: |
+    # Conservative defaults for the ~16 GiB development host. Shared by all
+    # builds using this project KAS configuration, including without an overlay.
+    BB_NUMBER_THREADS = "2"
+    PARALLEL_MAKE = "-j 2"
+    PARALLEL_MAKEINST = "-j 2"
+  lockdown: |
+    INIT_MANAGER = "systemd"
+    DISTRO_FEATURES:append = " systemd seccomp pam"
+    IMAGE_FSTYPES = "ext4"
+  test: |
+    IMAGE_CLASSES += "testimage"
+    TEST_TARGET = "qemu"
+    TEST_SUITES = "ping lockdown_ebpf_builtin lockdown_netguard lockdown_fileguard"
+    IMAGE_FEATURES:append = " ssh-server-dropbear debug-tweaks"
+    QB_MEM = "-m 1024"
+    TEST_RUNQEMUPARAMS = "slirp nographic"

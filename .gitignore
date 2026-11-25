@@ -1,0 +1,7 @@
+# Local Yocto build products and machine-specific configurations.
+yocto-build/
+yocto-build
+kas/local-cache.yml
+__pycache__/
+doc/*.pptx
+doc/*.pptx.odp

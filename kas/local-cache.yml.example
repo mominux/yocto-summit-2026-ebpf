@@ -1,0 +1,10 @@
+# Copy this to kas/local-cache.yml for host-specific shared cache directories.
+# This optional file is Git-ignored and selected automatically by env.sh.
+# Keep BB_NUMBER_THREADS and PARALLEL_MAKE in the tracked kas/lockdown.yml.
+header:
+  version: 14
+
+local_conf_header:
+  local-cache: |
+    DL_DIR = "/absolute/path/to/bitbake.downloads"
+    SSTATE_DIR = "/absolute/path/to/bitbake.sstate"

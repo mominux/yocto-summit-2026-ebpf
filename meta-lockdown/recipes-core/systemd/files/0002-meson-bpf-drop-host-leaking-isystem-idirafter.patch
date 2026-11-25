@@ -1,0 +1,44 @@
+Upstream-Status: Pending
+
+meson: avoid host include paths when cross-compiling BPF
+
+Meson's multiarch include-path probing can add host
+/usr/include directories to BPF compilation, causing
+target headers to be shadowed by host headers.
+
+The Yocto build already supplies the target sysroot
+through CCC_OVERRIDE_OPTIONS. Remove the redundant
+-isystem and -idirafter paths.
+
+--- a/meson.build
++++ b/meson.build
+@@ -1768,27 +1768,9 @@
+ 
+         bpf_o_unstripped_cmd += ['-I.']
+ 
+-        if cc.get_id() == 'gcc' or meson.is_cross_build()
+-                if cc.get_id() != 'gcc'
+-                        warning('Cross compiler is not gcc. Guessing the target triplet for bpf likely fails.')
+-                endif
+-                target_triplet_cmd = run_command(cc.cmd_array(), '-print-multiarch', check: false)
+-        else
+-                # clang does not support -print-multiarch (D133170) and its -dump-machine
+-                # does not match multiarch. Query gcc instead.
+-                target_triplet_cmd = run_command('gcc', '-print-multiarch', check: false)
+-        endif
+-        if target_triplet_cmd.returncode() == 0
+-                target_triplet = target_triplet_cmd.stdout().strip()
+-                bpf_o_unstripped_cmd += [
+-                        '-isystem',
+-                        '/usr/include/@0@'.format(target_triplet)
+-                ]
+-        endif
+-
++        # meta-lockdown: avoid host include paths during cross-compiled BPF builds.
++        # CCC_OVERRIDE_OPTIONS supplies the target sysroot.
+         bpf_o_unstripped_cmd += [
+-                '-idirafter',
+-                libbpf_include_dir,
+                 '@INPUT@',
+                 '-o',
+                 '@OUTPUT@'
